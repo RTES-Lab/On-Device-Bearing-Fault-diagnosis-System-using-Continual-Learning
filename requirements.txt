@@ -1,0 +1,17 @@
+numpy==1.24.4
+pandas==2.0.3
+matplotlib==3.7.5
+scipy==1.10.1
+scikit-learn==1.3.2
+scikit-image==0.21.0
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
+avalanche-lib==0.3.1
+fastparquet==2024.2.0
+pytorch_lightning==2.4.0
+wget==3.2
+patool==3.0.3
+gdown==5.2.0
+wandb==0.18.7
+Sounddevice==0.4.4
