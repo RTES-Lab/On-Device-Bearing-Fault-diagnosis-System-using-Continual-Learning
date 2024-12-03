@@ -25,7 +25,7 @@ params = {
         'i': 'device01',
 }
 
-# 모델 불러오기
+# 모델 불러오기 (학습이 완료된 모델 파일 경로는 수동 입력)
 model_path = "results/model.pth" 
 model = WDCNN(n_classes=4)
 state_dict = torch.load(model_path, map_location=torch.device('cpu'))
