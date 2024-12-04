@@ -33,6 +33,14 @@ pip install -r requirements.txt
 ### 데이터셋 준비
 
 1. UOS 데이터셋 구조:
+UOS 데이터셋은 연속 학습(Continual Learning) 시나리오에 맞게 세 가지 phase로 구성되어 있다.
+
+Phase 1  ([Deep groove ball bearing](https://data.mendeley.com/datasets/53vtnjy6c6/1))
+
+Phase 2 ([Cylindrical roller bearing](https://data.mendeley.com/datasets/7trwzz77xh/1))
+
+Phase 3 ([Tapered roller bearing](https://data.mendeley.com/datasets/2cygy6y4rk/1))
+
 ```
 uos_data/
 ├── uos_cl_train.parquet   # 학습 데이터
