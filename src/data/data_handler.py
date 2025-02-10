@@ -10,7 +10,7 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Tuple, List
-from dfb.databuilder import build_from_dataframe
+from dfb.databuilder import *
 
 class DataHandler:
     @staticmethod
@@ -22,9 +22,30 @@ class DataHandler:
             Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: 
                 학습(train), 검증(validation), 테스트(test) 데이터프레임
         """
-        train_df = pd.read_parquet("uos_data/uos_cl_train.parquet")
-        val_df = pd.read_parquet("uos_data/uos_cl_val.parquet")
-        test_df = pd.read_parquet("uos_data/uos_cl_test.parquet")
+        # train_df = pd.read_parquet("uos_data/uos_cl_train.parquet")
+        # val_df = pd.read_parquet("uos_data/uos_cl_val.parquet")
+        # test_df = pd.read_parquet("uos_data/uos_cl_test.parquet")
+        
+        data_df = load_uos("data")
+
+        train_df, val_df, test_df = split_dataframe(data_df, 0.6, 0.2)
+
+        train_df = slice_dataframe(train_df, [2048, 2048], [2048, 2048])
+        val_df = slice_dataframe(val_df, [2048, 2048], [2048, 2048])
+        test_df = slice_dataframe(test_df, [2048, 2048], [2048, 2048])
+
+        train_df = train_df.drop(columns=["label"])
+        val_df = val_df.drop(columns=["label"])
+        test_df = test_df.drop(columns=["label"])
+
+        train_df["phase"] = train_df.apply(map_phase, axis=1)
+        val_df["phase"] = val_df.apply(map_phase, axis=1)
+        test_df["phase"] = test_df.apply(map_phase, axis=1)
+
+        train_df["data"] = train_df["data"].apply(lambda x: x.astype(np.float32))
+        val_df["data"] = val_df["data"].apply(lambda x: x.astype(np.float32))
+        test_df["data"] = test_df["data"].apply(lambda x: x.astype(np.float32))
+
         return train_df, val_df, test_df
 
     @staticmethod
