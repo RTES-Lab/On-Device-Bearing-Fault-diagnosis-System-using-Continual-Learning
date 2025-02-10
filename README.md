@@ -1,7 +1,7 @@
 # DeepFault with UOS Dataset
 
 ## 소개
- UOS 데이터셋을 활용하여 베어링 결함 진단을 위한 연속 학습(Continual Learning) 프레임워크를 제공합니다. 
+ UOS 데이터셋을 활용하여 베어링 결함 진단을 위한 연속 학습(Continual Learning) 프레임워크를 제공한다.
 
 ## 목차
 - [설치 방법](#설치-방법)
@@ -40,8 +40,19 @@ UOS 데이터셋은 연속 학습(Continual Learning) 시나리오에 맞게 세
     Phase 2 ([Cylindrical roller bearing](https://data.mendeley.com/datasets/7trwzz77xh/1))
 
     Phase 3 ([Tapered roller bearing](https://data.mendeley.com/datasets/2cygy6y4rk/1))
+   
+2. 프로젝트 루트 디렉토리에 데이터셋을 저장할 폴더를 생성
+```bash
+mkdir data
+```
 
-
+3. UOS 데이터셋을 다운로드 받고, 압축해제하여 다음과 같이 디렉토리 구조를 구성
+```
+data/
+├── BearingType_CylindricalRoller/    
+├── BearingType_DeepGrooveBall/      
+└── BearingType_TaperedRoller/        
+```
  <br/> 
 
 ## 빠른 시작
