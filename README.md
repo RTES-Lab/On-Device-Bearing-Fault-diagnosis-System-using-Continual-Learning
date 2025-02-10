@@ -42,11 +42,6 @@ Phase 2 ([Cylindrical roller bearing](https://data.mendeley.com/datasets/7trwzz7
 Phase 3 ([Tapered roller bearing](https://data.mendeley.com/datasets/2cygy6y4rk/1))
 
 ```
-uos_data/
-├── uos_cl_train.parquet   # 학습 데이터
-├── uos_cl_val.parquet     # 검증 데이터
-└── uos_cl_test.parquet    # 테스트 데이터
-```
 
 ## 빠른 시작
 
