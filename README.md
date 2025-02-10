@@ -49,8 +49,8 @@ mkdir data
 3. UOS 데이터셋을 다운로드 받고, 압축해제하여 다음과 같이 디렉토리 구조를 구성
 ```
 data/
-├── BearingType_CylindricalRoller/    
-├── BearingType_DeepGrooveBall/      
+├── BearingType_DeepGrooveBall/
+├── BearingType_CylindricalRoller/
 └── BearingType_TaperedRoller/        
 ```
  <br/> 
