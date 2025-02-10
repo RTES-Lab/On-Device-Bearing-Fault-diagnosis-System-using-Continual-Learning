@@ -15,8 +15,8 @@
 
 1. 저장소 클론
 ```bash
-git clone https://github.com//DeepFault-UOS.git
-cd DeepFault-UOS
+git clone https://github.com/On-Device-Bearing-Fault-diagnosis-System-using-Continual-Learning.git
+cd On-Device-Bearing-Fault-diagnosis-System-using-Continual-Learning
 ```
 
 2. Conda 환경 생성 및 활성화
