@@ -1,6 +1,7 @@
+import os
 import numpy as np
 import pandas as pd
-
+import scipy
 from typing import Tuple, Dict
 
 from sklearn.model_selection import train_test_split
@@ -33,45 +34,148 @@ def build(
         )
 
 
+# def split_dataframe(
+#     df: pd.DataFrame, train_ratio, val_ratio
+# ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+#     cum_train_ratio = train_ratio
+#     cum_val_ratio = cum_train_ratio + val_ratio
+
+#     cols = df.columns
+
+#     train_df = {}
+
+#     val_df = {}
+
+#     test_df = {}
+
+#     for c in cols:
+#         train_df[c] = []
+#         val_df[c] = []
+#         test_df[c] = []
+
+#     for _, row in df.iterrows():
+#         segment_length = row.data.size
+#         train_idx = (int)(segment_length * cum_train_ratio)
+#         val_idx = (int)(segment_length * cum_val_ratio)
+#         for c in cols:
+#             if c == "data":
+#                 train_df[c].append(row[c][:train_idx])
+#                 val_df[c].append(row[c][train_idx:val_idx])
+#                 test_df[c].append(row[c][val_idx:])
+#             else:
+#                 train_df[c].append(row[c])
+#                 val_df[c].append(row[c])
+#                 test_df[c].append(row[c])
+    
+#     train_df = pd.DataFrame(train_df)
+#     val_df = pd.DataFrame(val_df)
+#     test_df = pd.DataFrame(test_df)
+
+#     return train_df, val_df, test_df
+
 def split_dataframe(
-    df: pd.DataFrame, train_ratio, val_ratio
+    df: pd.DataFrame, train_ratio: float, val_ratio: float
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Split data segments of dataframe to the training, validation, and test segments.
+    Author: Seongjae Lee
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Input dataframe. The dataframe must contain the columns "data" and "label".
+    train_ratio: float
+        The ratio of the train data segment.
+    val_ratio: float
+        The ratio of the validation data segment.
+        The test data segment ratio is automatically selected to 1 - train_ratio - val_ratio.
+        train_ratio + val_ratio cannot be exceed 1.0.
+
+    Returns
+    ----------
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        A tuple containing the train, validation, and test dataframes.
+    """
     cum_train_ratio = train_ratio
     cum_val_ratio = cum_train_ratio + val_ratio
 
-    cols = df.columns
+    train_df = df.copy().reset_index(drop=True)
+    val_df = df.copy().reset_index(drop=True)
+    test_df = df.copy().reset_index(drop=True)
 
-    train_df = {}
-
-    val_df = {}
-
-    test_df = {}
-
-    for c in cols:
-        train_df[c] = []
-        val_df[c] = []
-        test_df[c] = []
-
-    for _, row in df.iterrows():
-        segment_length = row.data.size
+    for i in range(len(df)):
+        segment_length = df.iloc[i]["data"].size
         train_idx = (int)(segment_length * cum_train_ratio)
         val_idx = (int)(segment_length * cum_val_ratio)
-        for c in cols:
-            if c == "data":
-                train_df[c].append(row[c][:train_idx])
-                val_df[c].append(row[c][train_idx:val_idx])
-                test_df[c].append(row[c][val_idx:])
-            else:
-                train_df[c].append(row[c])
-                val_df[c].append(row[c])
-                test_df[c].append(row[c])
-    
-    train_df = pd.DataFrame(train_df)
-    val_df = pd.DataFrame(val_df)
-    test_df = pd.DataFrame(test_df)
+
+        train_df.at[i, "data"] = train_df.at[i, "data"][:train_idx]
+        val_df.at[i, "data"] = val_df.at[i, "data"][train_idx:val_idx]
+        test_df.at[i, "data"] = test_df.at[i, "data"][val_idx:]
 
     return train_df, val_df, test_df
 
+def slice_dataframe(df: pd.DataFrame, window_map: List, shift_map: List) -> pd.DataFrame:
+    result_rows = []
+    
+    for _, row in df.iterrows():
+        data_array = row['data']
+        other_columns = row.drop('data')
+        window_size = window_map[other_columns["label"]]
+        shift_size = shift_map[other_columns["label"]]
+        
+        for i in range(0, len(data_array) - window_size + 1, shift_size):
+            window = data_array[i:i+window_size]
+            new_row = other_columns.to_dict()
+            new_row['data'] = window
+            result_rows.append(new_row)
+
+    result_df = pd.DataFrame(result_rows)
+    return result_df
+
+def load_uos(rootdir, sampling_rate=16000):
+    bearing_types = ["DeepGrooveBall", "CylindricalRoller", "TaperedRoller"]
+    sampling_rate = sampling_rate
+    rotating_speeds = [600, 800, 1000, 1200, 1400, 1600]
+
+    data_df = {
+        "data": [],
+        "bearing_type": [],
+        "sampling_rate": [],
+        "rotating_speed": [],
+        "machine_fault": [],
+        "bearing_fault": [],
+        "label": []
+    }
+
+    for bearing_type in bearing_types:
+        for rotating_speed in rotating_speeds:
+            dir = os.path.join(rootdir, f"BearingType_{bearing_type}/SamplingRate_{sampling_rate}/RotatingSpeed_{rotating_speed}")
+
+            file_list = [file for file in os.listdir(dir) if file.endswith(".mat") and os.path.isfile(os.path.join(dir, file))]
+            file_list.sort()
+
+            for file in file_list:
+                file_dir = os.path.join(dir, file)
+                file_key = os.path.splitext(file)[0]
+                data_properties = file_key.split(sep="_")
+                mat_data = scipy.io.loadmat(file_dir)
+                vib_data = mat_data["Data"].ravel()
+                data_df["data"].append(vib_data)
+                data_df["bearing_type"].append(bearing_type)
+                data_df["sampling_rate"].append(sampling_rate)
+                data_df["rotating_speed"].append(rotating_speed)
+                data_df["machine_fault"].append(data_properties[0])
+                data_df["bearing_fault"].append(data_properties[1])
+                status = f"{data_properties[0]}_{data_properties[1]}"
+                if status == "H_H":
+                    label = 0
+                else:
+                    label = 1
+                data_df["label"].append(label)
+    
+    data_df = pd.DataFrame(data_df)
+
+    return data_df
 
 def build_from_dataframe(
     df: pd.DataFrame, sample_length: int, shift: int = 2048, one_hot: bool = False
